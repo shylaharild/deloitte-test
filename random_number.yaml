@@ -14,9 +14,31 @@ Parameters:
     Default: "random-number-v0.0.1.zip"
 
   ResourceStack:
-    Description: The name of the CloudFormation Stack where Deployment Resources Resides
+    Description: >
+      The name of the CloudFormation Stack where Deployment Resources resides.
+      Leave this blank if you're using existing bucket
     Type: String
     Default: deployment-resources
+
+  ExistingS3Bucket:
+    Description: >
+      Name of the S3 Bucket where archive is available.
+      Leave this blank if you're using deployment-resources.yaml stack
+    Type: String
+
+  CreateCustomDNS:
+    Description: Enable Custom DNS Creation
+    Type: String
+    Default: false
+    AllowedValues:
+    - true
+    - false
+
+Conditions:
+  EnableStackImport:
+    !Not [!Equals [!Ref ResourceStack, ""]]
+  EnableDNS:
+    !Equals [!Ref CreateCustomDNS, true]
 
 Resources:
   # Required Log Group
@@ -63,8 +85,11 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Fn::ImportValue:
-            !Sub ${ResourceStack}-DeploymentBucket
+          !If
+          - EnableStackImport
+          - Fn::ImportValue:
+              !Sub ${ResourceStack}-DeploymentBucket
+          - !Ref ExistingS3Bucket
         S3Key: !Join ["/", [!Ref ArchivePath, !Ref ArchiveFile]]
       FunctionName: "python-random-number"
       Handler: handler.website
@@ -122,6 +147,33 @@ Resources:
     DependsOn:
     - ApiGatewayMethodGet
 
+  #Required Custom DNS Record for the API URL
+  #Assumption is that the Hosted Zone for devopstest.com is already created in Route53
+  ApiGatewayDomainCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Condition: EnableDNS
+    Properties:
+      DomainName: !Join [".", ["random", "devopstest.com"]]
+
+  ApiGatewayDomainName:
+    Type: AWS::ApiGateway::DomainName
+    Condition: EnableDNS
+    Properties:
+      RegionalCertificateArn: !Ref ApiGatewayDomainCertificate
+      DomainName: !Join [".", ["random", "devopstest.com"]]
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  ApiGatewayMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Condition: EnableDNS
+    Properties:
+      BasePath: ""
+      DomainName: !Join [".", ["random", "devopstest.com"]]
+      RestApiId: !Ref ApiGatewayRestApi
+      Stage: dev
+
 Outputs:
   LambdaFunctionQualifiedArn:
     Description: Current Lambda function version
@@ -129,3 +181,6 @@ Outputs:
   ApiEndpoint:
     Description: API Gateway URL of the application
     Value: !Join ["", [!Ref ApiGatewayRestApi, ".execute-api.us-east-1.amazonaws.com/dev"]]
+  DomainName:
+    Description: Custom DNS Name for the API Endpoint
+    Value: !Ref ApiGatewayDomainName
