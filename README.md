@@ -23,3 +23,10 @@ There are two CloudFormation templates involved in this task.
 This CloudFormation template creates the S3 bucket for the application archives to be uploaded for the lambda function in the `random-number.yaml` template to access. This is made separate because the next template requires to archive to be available in the given location.
 
 This stack can also be used to create the Continuous Integration and Continuous Deployment pipeline. Hence the name deployment-resources.
+
+## random-number.yaml
+The CloudFormation template is the main template responsible to create Lambda function, API Gateway and other required resources for the application to run. This template has few parameters which is required for the resources mentioned in the Resource section to be created. This template also imports the output of the `deployment-resources.yaml` template so it is essential to have a successful creation of the  `deployment-resources.yaml` stack before launching this template.
+
+The steps to use are provided below.
+
+## How to deploy
