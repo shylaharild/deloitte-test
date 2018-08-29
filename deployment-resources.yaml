@@ -1,0 +1,28 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deployment Resources for Python App to generate Random Numbers
+
+Parameters:
+  ApplicationName:
+    Description: Name of the application
+    Type: String
+    Default: "python-random-number"
+
+Resources:
+  # Required Deployment Bucket
+  DeploymentBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref ApplicationName
+
+Outputs:
+  ArchiveBucketName:
+    Value: !Ref DeploymentBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-DeploymentBucket"
+  ApplicationName:
+    Description: Name of the Application
+    Value: !Ref ApplicationName
+    Export:
+      Name: !Sub "${AWS::StackName}-ApplicationName"
