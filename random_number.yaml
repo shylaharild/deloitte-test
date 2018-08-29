@@ -1,0 +1,131 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Python Application to Generate Random Numbers
+
+Parameters:
+  ArchivePath:
+    Description: S3 Key Path for the Application Archive
+    Type: String
+    Default: "dev"
+
+  ArchiveFile:
+    Description: Application archive file name
+    Type: String
+    Default: "random-number-v0.0.1.zip"
+
+  ResourceStack:
+    Description: The name of the CloudFormation Stack where Deployment Resources Resides
+    Type: String
+    Default: deployment-resources
+
+Resources:
+  # Required Log Group
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/lambda/python-random-number"
+      RetentionInDays: "30"
+
+  # Required IAM Role for Lambda
+  IAMRoleLambdaExecution:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "python-random-number-lambda-role"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: "lambda-python-random-number"
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            Resource:
+            - Fn::Sub: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/python-random-number:*
+          - Effect: Allow
+            Action:
+            - logs:PutLogEvents
+            Resource:
+            - Fn::Sub: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/python-random-number:*:*
+      Path: "/"
+
+  # Required Lambda Function & Version
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::ImportValue:
+            !Sub ${ResourceStack}-DeploymentBucket
+        S3Key: !Join ["/", [!Ref ArchivePath, !Ref ArchiveFile]]
+      FunctionName: "python-random-number"
+      Handler: handler.website
+      MemorySize: 512
+      Role: !GetAtt IAMRoleLambdaExecution.Arn
+      Runtime: python3.6
+      Timeout: 10
+    DependsOn:
+    - CloudWatchLogGroup
+    - IAMRoleLambdaExecution
+
+  LambdaVersion:
+    Type: AWS::Lambda::Version
+    DeletionPolicy: Retain
+    Properties:
+      FunctionName: !Ref LambdaFunction
+
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt LambdaFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Join [":", ["arn:aws:execute-api", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join ["", [!Ref ApiGatewayRestApi, "/*/*"]]]]
+
+  # Required API Gateway Components
+  ApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: "python-random-number"
+      EndpointConfiguration:
+        Types:
+        - REGIONAL
+
+  ApiGatewayMethodGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      RequestParameters: {}
+      ResourceId: !GetAtt ApiGatewayRestApi.RootResourceId
+      RestApiId: !Ref ApiGatewayRestApi
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Join ["", ["arn:aws:apigateway:", !Ref "AWS::Region", ":lambda:path/2015-03-31/functions/", !GetAtt LambdaFunction.Arn, "/invocations"]]
+      MethodResponses: []
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      StageName: dev
+    DependsOn:
+    - ApiGatewayMethodGet
+
+Outputs:
+  LambdaFunctionQualifiedArn:
+    Description: Current Lambda function version
+    Value: !Ref LambdaVersion
+  ApiEndpoint:
+    Description: API Gateway URL of the application
+    Value: !Join ["", [!Ref ApiGatewayRestApi, ".execute-api.us-east-1.amazonaws.com/dev"]]
