@@ -2,7 +2,7 @@ import json
 import random
 
 def website(event, context):
-    random_number = random.randint(1,101)
+    random_number = random.randint(1,100)
     body = {
         "message": "The random number is " + str(random_number)
     }
