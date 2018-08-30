@@ -34,115 +34,126 @@ To create the user to execute the code, do the following.
 
 ```
 {
-"Version": "2012-10-17",
-"Statement": [
-    {
-        "Sid": "CloudFormationPermissions",
-        "Effect": "Allow",
-        "Action": [
-            "cloudformation:CreateUploadBucket",
-            "cloudformation:CancelUpdateStack",
-            "cloudformation:CreateStack",
-            "cloudformation:DeleteStack",
-            "cloudformation:UpdateStack",
-            "cloudformation:UpdateTerminationProtection",
-            "cloudformation:CreateChangeSet",
-            "cloudformation:Describe*",
-            "cloudformation:ContinueUpdateRollback",
-            "cloudformation:EstimateTemplateCost",
-            "cloudformation:PreviewStackUpdate",
-            "cloudformation:List*",
-            "cloudformation:ExecuteChangeSet",
-            "cloudformation:ValidateTemplate",
-            "cloudformation:Get*"
-        ],
-        "Resource": "*"
-    },
-    {
-        "Sid": "LambdaPermissions",
-        "Effect": "Allow",
-        "Action": [
-            "lambda:AddPermission",
-            "lambda:InvokeFunction",
-            "lambda:DeleteFunction",
-            "lambda:PublishVersion",
-            "lambda:List*",
-            "lambda:CreateFunction",
-            "lambda:Get*",
-            "lambda:RemovePermission",
-            "lambda:CreateAlias",
-            "lambda:Update*",
-            "apigateway:GET"
-        ],
-        "Resource": [
-            "arn:aws:lambda:*:*:function:${project}*",
-            "arn:aws:apigateway:*::/restapis"
-        ]
-    },
-    {
-        "Sid": "APIGatewayPermissions",
-        "Effect": "Allow",
-        "Action": "apigateway:*",
-        "Resource": [
-            "arn:aws:apigateway:*::/restapis/GATEWAY_ID/*",
-            "arn:aws:apigateway:*::/restapis"
-        ]
-    },
-    {
-        "Sid": "CloudWatchLogsPermission",
-        "Effect": "Allow",
-        "Action": [
-            "logs:CreateLogGroup",
-            "logs:PutRetentionPolicy"
-        ],
-        "Resource": [
-            "arn:aws:logs:*:*:log-group:*",
-            "arn:aws:lambda:*:*:function:${project}*",
-            "arn:aws:apigateway:*::/restapis/GATEWAY_ID/*",
-            "arn:aws:apigateway:*::/restapis"
-        ]
-    },
-    {
-        "Sid": "CloudWatchLogStreamPermission",
-        "Effect": "Allow",
-        "Action": [
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "logs:DescribeLogStreams",
-            "logs:GetLogEvents"
-        ],
-        "Resource": [
-            "arn:aws:logs:*:*:log-group:*:log-stream:*",
-            "arn:aws:lambda:*:*:function:${project}*",
-            "arn:aws:apigateway:*::/restapis/GATEWAY_ID/*",
-            "arn:aws:apigateway:*::/restapis"
-        ]
-    },
-    {
-        "Effect": "Allow",
-        "Sid": "GeneralPermissions",
-        "Action": [
-            "iam:CreateRole",
-            "iam:DeleteRole",
-            "iam:PutRolePolicy",
-            "iam:DeleteRolePolicy",
-            "iam:Get*",
-            "iam:PassRole",
-            "iam:ChangePassword"
-            "route53:Create*",
-            "route53:Get*",
-            "route53:List*",
-            "route53:Update*",
-            "route53:Change*",
-            "s3:CreateBucket",
-            "S3:Get*",
-            "S3:List*",
-            "S3:Put*",
-            "S3:DeleteObject*"
-        ],
-        "Resource": "*"
-    }
-]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "CloudFormationPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:CreateUploadBucket",
+                "cloudformation:CancelUpdateStack",
+                "cloudformation:CreateStack",
+                "cloudformation:DeleteStack",
+                "cloudformation:UpdateStack",
+                "cloudformation:UpdateTerminationProtection",
+                "cloudformation:CreateChangeSet",
+                "cloudformation:Describe*",
+                "cloudformation:ContinueUpdateRollback",
+                "cloudformation:EstimateTemplateCost",
+                "cloudformation:PreviewStackUpdate",
+                "cloudformation:List*",
+                "cloudformation:ExecuteChangeSet",
+                "cloudformation:ValidateTemplate",
+                "cloudformation:Get*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "LambdaPermissions",
+            "Effect": "Allow",
+            "Action": [
+                "lambda:AddPermission",
+                "lambda:InvokeFunction",
+                "lambda:DeleteFunction",
+                "lambda:PublishVersion",
+                "lambda:List*",
+                "lambda:CreateFunction",
+                "lambda:Get*",
+                "lambda:RemovePermission",
+                "lambda:CreateAlias",
+                "lambda:Update*",
+                "apigateway:GET"
+            ],
+            "Resource": [
+                "arn:aws:lambda:*:*:function:*",
+                "arn:aws:lambda:*:*:function:${project}*",
+                "arn:aws:apigateway:*::/restapis"
+            ]
+        },
+        {
+            "Sid": "APIGatewayPermissions",
+            "Effect": "Allow",
+            "Action": "apigateway:*",
+            "Resource": [
+                "arn:aws:apigateway:*::/restapis/GATEWAY_ID/*",
+                "arn:aws:apigateway:*::/restapis",
+                "arn:aws:apigateway:*::/restapis/*"
+            ]
+        },
+        {
+            "Sid": "CloudWatchLogsPermission",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:PutRetentionPolicy",
+                "logs:DeleteLogGroup"
+            ],
+            "Resource": [
+                "arn:aws:logs:*:*:log-group:*",
+                "arn:aws:lambda:*:*:function:${project}*",
+                "arn:aws:apigateway:*::/restapis/GATEWAY_ID/*",
+                "arn:aws:apigateway:*::/restapis"
+            ]
+        },
+        {
+            "Sid": "CloudWatchLogStreamPermission",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:*:*:log-group:*:log-stream:*",
+                "arn:aws:lambda:*:*:function:${project}*",
+                "arn:aws:apigateway:*::/restapis/GATEWAY_ID/*",
+                "arn:aws:apigateway:*::/restapis"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Sid": "GeneralPermissions",
+            "Action": [
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:PutRolePolicy",
+                "iam:DeleteRolePolicy",
+                "iam:Get*",
+                "iam:PassRole",
+                "iam:ChangePassword",
+                "route53:Create*",
+                "route53:Get*",
+                "route53:List*",
+                "route53:Update*",
+                "route53:Change*",
+                "s3:CreateBucket",
+                "S3:Get*",
+                "S3:List*",
+                "S3:Put*",
+                "S3:DeleteObject*",
+                "cloudwatch:Describe*",
+                "cloudwatch:Get*",
+                "cloudwatch:List*",
+                "logs:Get*",
+                "logs:List*",
+                "logs:Describe*",
+                "logs:TestMetricFilter",
+                "logs:FilterLogEvents"
+            ],
+            "Resource": "*"
+        }
+    ]
 }
 ```
 

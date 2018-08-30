@@ -104,9 +104,9 @@ To create the `random-number.yaml` stack, use the given command
 
 ```bash
 aws cloudformation create-stack --region us-east-1 --stack-name python-random-number \
-                  --template-body file://{path-to-directory}/random-number.yaml \
-                  --parameters ParameterKey=ArchivePath,ParameterValue=dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.1.zip ParameterKey=ResourceStack,ParameterValue=deployment-resources \
-                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri
+                  --template-body file://{path-to-directory}/random_number.yaml \
+                  --parameters ParameterKey=ApplicationName,ParameterValue=python-random-number ParameterKey=ArchivePath,ParameterValue=dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.1.zip ParameterKey=ResourceStack,ParameterValue=deployment-resources \
+                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri  --capabilities CAPABILITY_NAMED_IAM
 ```
 
 > ParameterValues are interdependent on both the stacks. Better not to change it.
@@ -115,21 +115,29 @@ If using existing S3 bucket
 
 ```bash
 aws cloudformation create-stack --region us-east-1 --stack-name python-random-number \
-                  --template-body file://{path-to-directory}/random-number.yaml \
-                  --parameters ParameterKey=ArchivePath,ParameterValue=python-random-number/dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.1.zip ParameterKey=ExistingS3Bucket,ParameterValue={S3-Bucket-Name} \
-                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri
+                  --template-body file://{path-to-directory}/random_number.yaml \
+                  --parameters ParameterKey=ApplicationName,ParameterValue=python-random-number ParameterKey=ArchivePath,ParameterValue=python-random-number/dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.1.zip ParameterKey=ExistingS3Bucket,ParameterValue={S3-Bucket-Name} \
+                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri --capabilities CAPABILITY_NAMED_IAM
 ```
 
 > Take caution while providing the parameter values.
 > The Stack will rollback if the resource name doesn't matches with the one available in the AWS Account
 
+To create the custom DNS, use the command below. But make sure that the user has specific permissions to use CertificateManager & Route53 services from AWS. Also, make sure that the Hosted Zone for the desired domain name is already available. Refer https://github.com/shylaharild/deloitte-test#known-issues--uncertainities
+```bash
+aws cloudformation update-stack --region us-east-1 --stack-name python-random-number \
+                  --template-body file://{path-to-directory}/random_number.yaml \
+                  --parameters ParameterKey=ApplicationName,ParameterValue=python-random-number ParameterKey=ArchivePath,ParameterValue=dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.2.zip ParameterKey=ResourceStack,ParameterValue=deployment-resources ParameterKey=CreateCustomDNS,ParameterValue=true \
+                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri --capabilities CAPABILITY_NAMED_IAM
+```
+
 Replace the operation name from `create-stack` to `update-stack`, if you want to update the stack with new version file.
 
 ```bash
 aws cloudformation update-stack --region us-east-1 --stack-name python-random-number \
-                  --template-body file://{path-to-directory}/random-number.yaml \
-                  --parameters ParameterKey=ArchivePath,ParameterValue=dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.2.zip ParameterKey=ResourceStack,ParameterValue=deployment-resources \
-                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri
+                  --template-body file://{path-to-directory}/random_number.yaml \
+                  --parameters ParameterKey=ApplicationName,ParameterValue=python-random-number ParameterKey=ArchivePath,ParameterValue=dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.2.zip ParameterKey=ResourceStack,ParameterValue=deployment-resources \
+                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri --capabilities CAPABILITY_NAMED_IAM
 ```
 
 If you would like to verify the changes are going into stack, use `create-change-set` operation. You can see the list of changes in the AWS CloudFormation console.
@@ -137,9 +145,9 @@ If you would like to verify the changes are going into stack, use `create-change
 ```bash
 aws cloudformation create-change-set --change-set-name {give-random-name-here} \
                   --region us-east-1 --stack-name python-random-number \
-                  --template-body file://{path-to-directory}/random-number.yaml \
-                  --parameters ParameterKey=ArchivePath,ParameterValue=dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.2.zip ParameterKey=ResourceStack,ParameterValue=deployment-resources \
-                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri
+                  --template-body file://{path-to-directory}/random_number.yaml \
+                  --parameters ParameterKey=ApplicationName,ParameterValue=python-random-number ParameterKey=ArchivePath,ParameterValue=dev ParameterKey=ArchiveFile,ParameterValue=random-number-v0.0.2.zip ParameterKey=ResourceStack,ParameterValue=deployment-resources \
+                  --tags Key=Environment,Value=dev Key=Owner,Value=Sri --capabilities CAPABILITY_NAMED_IAM
 ```
 
 ## Usage
