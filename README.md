@@ -1,6 +1,6 @@
 # Deloitte DevOps Recruitment Test
 
-## Python generate ramdom number between 1 & 100
+## Python generate random number between 1 & 100
 
 The programs generates random number between 1 and 100 when it is called using the HTTP GET endpoint. This program runs on AWS Lambda functions and uses the API Gateway to serve the HTTP endpoint.
 
@@ -24,7 +24,7 @@ The following are the prerequisites to carry on with this task
 * Install & configure AWS CLI on the device that you're using to do this task
 * Install git on the device that you're using to do this task
 
-If you need to know more about creating an AWS Account and IAM User, follow the steps provided in the BONUS_POINTS.md file.
+If you need to know more about creating an AWS Account and IAM User, follow the steps provided in the bonus-points.md file.
 
 ## CloudFormation templates
 
@@ -61,7 +61,7 @@ Advantages of using S3 bucket for archives
 ## random-number.yaml
 The CloudFormation template is the main template responsible to create Lambda function, API Gateway and other required resources for the application to run. This template has few parameters which is required for the resources mentioned in the Resource section to be created. This template also imports the output of the `deployment-resources.yaml` template so it is essential to have a successful creation of the `deployment-resources.yaml` stack before launching this template.
 
-The parameters have default values in the template. You can edit it with the actual values and create stack using AWS Console access. However, it is advised to use the actual values in the command line so that you don have to change the file everytime you upload a new version of the application.
+The parameters have default values in the template. You can edit it with the actual values and create stack using AWS Console access. However, it is advised to use the actual values in the command line so that you don have to change the file every time you upload a new version of the application.
 
 If you're using existing bucket, makes sure that the necessary parameter is mentioned when using the CLI.
 
